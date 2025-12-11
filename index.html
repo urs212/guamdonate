@@ -1,158 +1,69 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>후원 내역</title>
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>후원 랭킹</title>
 <style>
-    body {
-        font-family: 'Noto Sans KR', sans-serif;
-        background: #0f0f0f;
-        margin: 0;
-        padding: 0;
-        color: white;
-    }
-
-    .header {
-        background: linear-gradient(135deg, #8e2de2, #4a00e0);
-        padding: 40px 20px;
-        text-align: center;
-        font-size: 36px;
-        font-weight: 700;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    }
-
-    .container {
-        width: 90%;
-        max-width: 900px;
-        margin: 40px auto;
-    }
-
-    .card {
-        background: #1a1a1a;
-        padding: 25px;
-        margin-bottom: 25px;
-        border-radius: 18px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-        opacity: 0;
-        transform: translateY(40px);
-        transition: all 0.6s ease-out;
-    }
-
-    .card.show {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    .left {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .rank-number {
-        font-size: 20px;
-        font-weight: 700;
-        opacity: 0.7;
-    }
-
-    .name {
-        font-size: 22px;
-        font-weight: 700;
-    }
-
-    .amount {
-        font-size: 17px;
-        opacity: 0.7;
-    }
-
-    .badge-box {
-        text-align: center;
-    }
-
-    .badge-img {
-        width: 80px;
-        height: 80px;
-        object-fit: contain;
-        filter: drop-shadow(0 0 8px rgba(255,255,255,0.4));
-    }
-
-    .badge-text {
-        margin-top: 5px;
-        font-size: 16px;
-        font-weight: 600;
-        opacity: 0.85;
-    }
+  :root{
+    --bg:#0f0f0f; --card:#1a1a1a; --accent1:#8e2de2; --accent2:#4a00e0;
+    --muted:rgba(255,255,255,0.8);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:'Noto Sans KR',sans-serif;
+    background:linear-gradient(135deg,var(--accent1),var(--accent2));
+    color:white; min-height:100vh; padding:28px;
+  }
+  .wrap{max-width:1000px;margin:0 auto;}
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+  h1{margin:0;font-size:28px}
+  .btn{
+    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.08);
+    color:white;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer;text-decoration:none;
+  }
+  .list{margin-top:18px;display:flex;flex-direction:column;gap:14px}
+  .card{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--card);padding:16px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.45);
+    transition:transform .2s; overflow:hidden;
+  }
+  .card:hover{transform:translateY(-4px)}
+  .left{display:flex;align-items:center;gap:14px}
+  .ranknum{font-size:20px;font-weight:800;color:var(--muted);width:60px;text-align:center}
+  .info{display:flex;flex-direction:column}
+  .name{font-size:20px;font-weight:800}
+  .amount{font-size:14px;opacity:0.85;margin-top:6px}
+  .badge{display:flex;flex-direction:column;align-items:center;gap:6px}
+  .badge img{width:84px;height:84px;object-fit:contain;border-radius:10px;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.6))}
+  .badgetext{font-weight:800;opacity:0.95}
+  @media(max-width:720px){
+    .card{flex-direction:row;gap:8px}
+    .left{gap:10px}
+  }
 </style>
-
 </head>
 <body>
+<div class="wrap">
+  <header>
+    <h1>후원 랭킹</h1>
+    <div>
+      <a class="btn" href="review.html">후기 보기</a>
+      <a class="btn" id="refreshBtn" style="margin-left:8px;cursor:pointer">새로고침</a>
+    </div>
+  </header>
 
-<div class="header">후원 내역</div>
-<div class="container" id="list"></div>
+  <div id="list" class="list"></div>
+</div>
 
 <script>
-// 등급별 이미지
+// 등급 이미지 (사용자 제공 링크 그대로)
 const rankImages = {
-    "일반": "https://i.namu.wiki/i/fFHUtq2EsgP6ZDGgUv2e8VpJhIFbWUj9fNAr0JYacJQj4Lyu09A1YKRvIyVdbzwAFI0_b2OpPTSNuLfONx_jtEUy0LhBwdpyLACyO-ZeUycrTFnoHh0Cg-Dh07DIXzPjF3h61ErdQ80tihG54QFKkQ.webp",
-    "브론즈": "https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4oVbdfaN_o3vRhEn_zFvyWnMEITJW4pj4m0EROkVDMmpedTH9MgBIPj8PTjRcNdtcJQAwfd7oY5X7sZbld8NJFfiTMSmcxMcHCgRA-ex7vSIX3GM4hLakZyYUhqQCNJ733byRgKlSkpckS_j23XbAXY.webp",
-    "실버": "https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4hrfar3U4QgGvxuRHU9RXTeadbmTtFPsB7g4Sdejs_z-W2fS43wsTlgKJQLfICycsaEqy75NxzeuSg3-HbLjhpAvCaCL07_ulDtE4YA9fOH5E1umx40KuGK4O46kDbH805lg18T8N9Z_XM0h_5bL_UM.webp",
-    "골드": "https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4gwblIwmkbe7A5QZUVP4xHBZ9adbbdNVE3LO2NzojY27oemE_baidZjyeU54LLyXEjDiGJKwdvTf1J_z7yan63h4rC4vJenvzPrPAkC281M6p7dLe1GI_7rvVrXxIKmiT7ZRvgOMvw8g2yaPn90439o.webp",
-    "플래티넘": "https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4kmXDxhZclWoIO4gogdWRTq6EqfTIgiv-2DueEn3lP6WfsiT6G1tvwo6HluD20r-hWSDVCqZWV0e9v6WWANuRb7FElPVhw3VgMHAeKREDTfJ0qqsipsxeLKxf-CO6_XJgL1sK673uYo9m8O5qRF07Nc.webp",
-    "다이아": "https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4tbp_CsF4CiQXz5AHcohXX3akedZUj7QI8X_mrj-a-n8KDFpti1EPqvQNO6u5SmHGGUQouzRE_FULJ_-gZAbnCifDHbT9SCeuJCBrNdbmI_tbER_9SpARJ2uMiG654pW5m1pXRp5H_nqlx2s5m0tzbI.webp",
-    "레드다이아": "https://i.namu.wiki/i/1_cnpTYsY5yLZVbSqP2U4iZcOzCU2BMiY28pJQyHP229ImsQsiHVLzaTVzEhxJP6OoK5pAp3GIKekrAs88sF_9aTMPU8AceIpuek9XZb8XbK4Xhfjao1EHq412rbp2LQLxPcjg0iK4Lxn8ABzmDjpA.webp",
-    "레디언트": "https://i.namu.wiki/i/f-HVmJ79Za1GYbSYvTQXU9vfWsCM-8P5wXURP4ev_qTHkhmlv4PoSHXmZ7vtt4UZ7wDFV84i1tmYffiWdHdBhpad6HQWP0jfzBgfsdavMkP9tmkwksQIR-NKsELfQ4Ksr5RPNA_XM9myWX43jtBTKA.webp"
-};
-
-// 등급 조건
-function getRank(amount) {
-    if (amount >= 25000) return "레디언트";
-    if (amount >= 15000) return "레드다이아";
-    if (amount >= 10000) return "다이아";
-    if (amount >= 6000)  return "골드";
-    if (amount >= 4000)  return "플래티넘";
-    if (amount >= 2500)  return "실버";
-    if (amount >= 1000)  return "브론즈";
-    return "일반";
-}
-
-// JSON 가져오기
-fetch("donations.json")
-    .then(res => res.json())
-    .then(data => {
-        const list = document.getElementById("list");
-
-        // 금액 높은 순 정렬
-        data.sort((a, b) => b.amount - a.amount);
-
-        data.forEach((item, i) => {
-            const rank = getRank(item.amount);
-            const imgURL = rankImages[rank];
-
-            const card = document.createElement("div");
-            card.className = "card";
-
-            card.innerHTML = `
-                <div class="left">
-                    <div class="rank-number">${i + 1}위</div>
-                    <div class="name">${item.name}</div>
-                    <div class="amount">${item.amount.toLocaleString()}원</div>
-                </div>
-                <div class="badge-box">
-                    <img class="badge-img" src="${imgURL}">
-                    <div class="badge-text">${rank}</div>
-                </div>
-            `;
-
-            list.appendChild(card);
-
-            setTimeout(() => card.classList.add("show"), i * 120);
-        });
-    });
-</script>
-
-</body>
-</html>
+  "일반": "https://i.namu.wiki/i/fFHUtq2EsgP6ZDGgUv2e8VpJhIFbWUj9fNAr0JYacJQj4Lyu09A1YKRvIyVdbzwAFI0_b2OpPTSNuLfONx_jtEUy0LhBwdpyLACyO-ZeUycrTFnoHh0Cg-Dh07DIXzPjF3h61ErdQ80tihG54QFKkQ.webp",
+  "브론즈":"https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4oVbdfaN_o3vRhEn_zFvyWnMEITJW4pj4m0EROkVDMmpedTH9MgBIPj8PTjRcNdtcJQAwfd7oY5X7sZbld8NJFfiTMSmcxMcHCgRA-ex7vSIX3GM4hLakZyYUhqQCNJ733byRgKlSkpckS_j23XbAXY.webp",
+  "실버":"https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4hrfar3U4QgGvxuRHU9RXTeadbmTtFPsB7g4Sdejs_z-W2fS43wsTlgKJQLfICycsaEqy75NxzeuSg3-HbLjhpAvCaCL07_ulDtE4YA9fOH5E1umx40KuGK4O46kDbH805lg18T8N9Z_XM0h_5bL_UM.webp",
+  "플래티넘":"https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4kmXDxhZclWoIO4gogdWRTq6EqfTIgiv-2DueEn3lP6WfsiT6G1tvwo6HluD20r-hWSDVCqZWV0e9v6WWANuRb7FElPVhw3VgMHAeKREDTfJ0qqsipsxeLKxf-CO6_XJgL1sK673uYo9m8O5qRF07Nc.webp",
+  "골드":"https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4gwblIwmkbe7A5QZUVP4xHBZ9adbbdNVE3LO2NzojY27oemE_baidZjyeU54LLyXEjDiGJKwdvTf1J_z7yan63h4rC4vJenvzPrPAkC281M6p7dLe1GI_7rvVrXxIKmiT7ZRvgOMvw8g2yaPn90439o.webp",
+  "다이아":"https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4tbp_CsF4CiQXz5AHcohXX3akedZUj7QI8X_mrj-a-n8KDFpti1EPqvQNO6u5SmHGGUQouzRE_FULJ_-gZAbnCifDHbT9SCeuJCBrNdbmI_tbER_9SpARJ2uMiG654pW5m1pXRp5H_nqlx2s5m0tzbI.webp",
+  "레드다이아":"https://i.namu.wiki/i/1_cnpTYsY5yLZVbSqP2U4iZcOzCU2BMiY28pJQyHP229ImsQsiHVLzaTVzEhxJP6OoK5pAp3GIKekrAs88sF_9aTMPU8AceIpuek9XZb8XbK4Xhfjao1EHq412rbp2LQLxPcjg0iK4Lxn8ABzmDjpA.webp",
+  "레디언트":"https://i.namu.wiki/i/f-HVmJ79Za1GYbSYvTQXU9vfWsCM-8P5wXU
