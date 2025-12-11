@@ -78,17 +78,19 @@
 
 <script>
 // 등급별 이미지 URL 매핑
+// 등급별 이미지 매핑
 const rankImages = {
+    "일반": "https://i.namu.wiki/i/fFHUtq2EsgP6ZDGgUv2e8VpJhIFbWUj9fNAr0JYacJQj4Lyu09A1YKRvIyVdbzwAFI0_b2OpPTSNuLfONx_jtEUy0LhBwdpyLACyO-ZeUycrTFnoHh0Cg-Dh07DIXzPjF3h61ErdQ80tihG54QFKkQ.webp",
     "브론즈": "https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4oVbdfaN_o3vRhEn_zFvyWnMEITJW4pj4m0EROkVDMmpedTH9MgBIPj8PTjRcNdtcJQAwfd7oY5X7sZbld8NJFfiTMSmcxMcHCgRA-ex7vSIX3GM4hLakZyYUhqQCNJ733byRgKlSkpckS_j23XbAXY.webp",
     "실버": "https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4hrfar3U4QgGvxuRHU9RXTeadbmTtFPsB7g4Sdejs_z-W2fS43wsTlgKJQLfICycsaEqy75NxzeuSg3-HbLjhpAvCaCL07_ulDtE4YA9fOH5E1umx40KuGK4O46kDbH805lg18T8N9Z_XM0h_5bL_UM.webp",
     "골드": "https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4gwblIwmkbe7A5QZUVP4xHBZ9adbbdNVE3LO2NzojY27oemE_baidZjyeU54LLyXEjDiGJKwdvTf1J_z7yan63h4rC4vJenvzPrPAkC281M6p7dLe1GI_7rvVrXxIKmiT7ZRvgOMvw8g2yaPn90439o.webp",
     "플래티넘": "https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4kmXDxhZclWoIO4gogdWRTq6EqfTIgiv-2DueEn3lP6WfsiT6G1tvwo6HluD20r-hWSDVCqZWV0e9v6WWANuRb7FElPVhw3VgMHAeKREDTfJ0qqsipsxeLKxf-CO6_XJgL1sK673uYo9m8O5qRF07Nc.webp",
     "다이아": "https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4tbp_CsF4CiQXz5AHcohXX3akedZUj7QI8X_mrj-a-n8KDFpti1EPqvQNO6u5SmHGGUQouzRE_FULJ_-gZAbnCifDHbT9SCeuJCBrNdbmI_tbER_9SpARJ2uMiG654pW5m1pXRp5H_nqlx2s5m0tzbI.webp",
     "레디언트": "https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4kAClSWpVD5zH_nYVdI8eeA-bRlP0OUo8yr5w_kwhAKsZCbMUlXNS0ZStmM6zsYrbZbP-GVG4-aq0CLgc4Jj2zO61V8F_q0a5MKaWcUEQnOnzjLxHrfeM2foeXMzRuRHoR_JsDJM3h9wKAmdg2kicnM.webp",
-    "Admin": "" // 이미지 원하면 알려줘!
+    "Admin": "" // 원하면 Admin 이미지도 넣어줄게
 };
 
-// 등급 계산
+// 등급 조건
 function getRank(amount) {
     if (amount >= 25000) return "Admin";
     if (amount >= 15000) return "레디언트";
@@ -97,8 +99,9 @@ function getRank(amount) {
     if (amount >= 4000)  return "플래티넘";
     if (amount >= 2500)  return "실버";
     if (amount >= 1000)  return "브론즈";
-    return "일반";
+    return "일반"; // 999 이하
 }
+
 
 // JSON 가져오기
 fetch("donations.json")
