@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>후원 내역</title>
+
+<style>
+    body {
+        font-family: 'Noto Sans KR', sans-serif;
+        background: #0f0f0f;
+        margin: 0;
+        padding: 0;
+        color: white;
+    }
+
+    /* 멋진 그라데이션 헤더 */
+    .header {
+        background: linear-gradient(135deg, #8e2de2, #4a00e0);
+        padding: 50px 20px;
+        text-align: center;
+        font-size: 36px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    .container {
+        width: 90%;
+        max-width: 900px;
+        margin: 40px auto;
+    }
+
+    /* 카드 기본 스타일 */
+    .card {
+        background: #1a1a1a;
+        padding: 25px;
+        margin-bottom: 25px;
+        border-radius: 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+        opacity: 0;
+        transform: translateY(50px);
+        transition: all 0.7s ease-out;
+    }
+
+    /* 나타날 때 애니메이션 */
+    .card.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .name {
+        font-size: 22px;
+        font-weight: 600;
+    }
+
+    .amount {
+        font-size: 17px;
+        opacity: 0.7;
+        margin-top: 5px;
+    }
+
+    .badge-img {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        filter: drop-shadow(0 0 8px rgba(255,255,255,0.4));
+    }
+</style>
+
+</head>
+<body>
+
+<div class="header">후원 내역</div>
+<div class="container" id="list"></div>
+
+<script>
+// 등급별 이미지 URL 매핑
+const rankImages = {
+    "브론즈": "https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4oVbdfaN_o3vRhEn_zFvyWnMEITJW4pj4m0EROkVDMmpedTH9MgBIPj8PTjRcNdtcJQAwfd7oY5X7sZbld8NJFfiTMSmcxMcHCgRA-ex7vSIX3GM4hLakZyYUhqQCNJ733byRgKlSkpckS_j23XbAXY.webp",
+    "실버": "https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4hrfar3U4QgGvxuRHU9RXTeadbmTtFPsB7g4Sdejs_z-W2fS43wsTlgKJQLfICycsaEqy75NxzeuSg3-HbLjhpAvCaCL07_ulDtE4YA9fOH5E1umx40KuGK4O46kDbH805lg18T8N9Z_XM0h_5bL_UM.webp",
+    "골드": "https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4gwblIwmkbe7A5QZUVP4xHBZ9adbbdNVE3LO2NzojY27oemE_baidZjyeU54LLyXEjDiGJKwdvTf1J_z7yan63h4rC4vJenvzPrPAkC281M6p7dLe1GI_7rvVrXxIKmiT7ZRvgOMvw8g2yaPn90439o.webp",
+    "플래티넘": "https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4kmXDxhZclWoIO4gogdWRTq6EqfTIgiv-2DueEn3lP6WfsiT6G1tvwo6HluD20r-hWSDVCqZWV0e9v6WWANuRb7FElPVhw3VgMHAeKREDTfJ0qqsipsxeLKxf-CO6_XJgL1sK673uYo9m8O5qRF07Nc.webp",
+    "다이아": "https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4tbp_CsF4CiQXz5AHcohXX3akedZUj7QI8X_mrj-a-n8KDFpti1EPqvQNO6u5SmHGGUQouzRE_FULJ_-gZAbnCifDHbT9SCeuJCBrNdbmI_tbER_9SpARJ2uMiG654pW5m1pXRp5H_nqlx2s5m0tzbI.webp",
+    "레디언트": "https://i.namu.wiki/i/U5k9BYY_kywKKjPFaNgy4kAClSWpVD5zH_nYVdI8eeA-bRlP0OUo8yr5w_kwhAKsZCbMUlXNS0ZStmM6zsYrbZbP-GVG4-aq0CLgc4Jj2zO61V8F_q0a5MKaWcUEQnOnzjLxHrfeM2foeXMzRuRHoR_JsDJM3h9wKAmdg2kicnM.webp",
+    "Admin": "" // 이미지 원하면 알려줘!
+};
+
+// 등급 계산
+function getRank(amount) {
+    if (amount >= 25000) return "Admin";
+    if (amount >= 15000) return "레디언트";
+    if (amount >= 10000) return "다이아";
+    if (amount >= 6000)  return "골드";
+    if (amount >= 4000)  return "플래티넘";
+    if (amount >= 2500)  return "실버";
+    if (amount >= 1000)  return "브론즈";
+    return "일반";
+}
+
+// JSON 가져오기
+fetch("donations.json")
+    .then(res => res.json())
+    .then(data => {
+        const list = document.getElementById("list");
+
+        data.forEach((item, i) => {
+            const rank = getRank(item.amount);
+
+            const card = document.createElement("div");
+            card.className = "card";
+
+            const imgURL = rankImages[rank] || "";
+
+            card.innerHTML = `
+                <div>
+                    <div class="name">${item.name}</div>
+                    <div class="amount">${item.amount.toLocaleString()}원</div>
+                </div>
+                ${imgURL 
+                    ? `<img class="badge-img" src="${imgURL}">`
+                    : `<div style="font-size:20px; font-weight:700;">${rank}</div>`}
+            `;
+
+            list.appendChild(card);
+
+            // 카드 등장 애니메이션 (딜레이 줌)
+            setTimeout(() => { card.classList.add("show"); }, 100 * i);
+        });
+    });
+</script>
+
+</body>
+</html>
