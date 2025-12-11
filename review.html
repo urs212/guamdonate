@@ -1,120 +1,75 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>후원 후기</title>
-
 <style>
-    body {
-        background: #0f0f0f;
-        color: white;
-        font-family: 'Noto Sans KR', sans-serif;
-        margin: 0;
-        padding: 0;
-    }
-
-    .header {
-        background: linear-gradient(135deg, #ff0066, #6600ff);
-        padding: 40px 20px;
-        text-align: center;
-        font-size: 34px;
-        font-weight: 700;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    }
-
-    .container {
-        width: 90%;
-        max-width: 900px;
-        margin: 30px auto;
-    }
-
-    .input-card {
-        background: #1a1a1a;
-        padding: 20px;
-        border-radius: 15px;
-        margin-bottom: 30px;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.6);
-    }
-
-    input, textarea {
-        width: 100%;
-        padding: 12px;
-        margin-top: 8px;
-        border: none;
-        border-radius: 10px;
-        outline: none;
-        font-size: 16px;
-        background: #2a2a2a;
-        color: white;
-    }
-
-    button {
-        width: 100%;
-        margin-top: 12px;
-        padding: 12px;
-        border: none;
-        border-radius: 10px;
-        background: linear-gradient(135deg, #ff0066, #6600ff);
-        color: white;
-        font-size: 18px;
-        cursor: pointer;
-        font-weight: 600;
-    }
-    button:hover {
-        opacity: 0.85;
-    }
-
-    .comment {
-        background: #1b1b1b;
-        padding: 18px;
-        border-radius: 14px;
-        margin-bottom: 15px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    }
-
-    .comment-name {
-        font-weight: 700;
-        font-size: 18px;
-    }
-
-    .comment-text {
-        margin-top: 8px;
-        font-size: 16px;
-        opacity: 0.9;
-    }
-
-    .time {
-        margin-top: 5px;
-        font-size: 14px;
-        opacity: 0.6;
-    }
+  :root{--bg:#0f0f0f;--card:#1a1a1a;--accent1:#8e2de2;--accent2:#4a00e0}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,var(--accent1),var(--accent2));color:white;min-height:100vh;padding:20px}
+  .wrap{max-width:1000px;margin:0 auto;background:var(--bg);padding:18px;border-radius:12px}
+  header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  h1{margin:0}
+  .top-actions{display:flex;gap:8px;align-items:center}
+  .btn{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.06);color:white;padding:8px 10px;border-radius:8px;cursor:pointer;font-weight:700}
+  .input-card{background:var(--card);padding:14px;border-radius:10px;margin-top:12px}
+  input,textarea,select{width:100%;padding:10px;border-radius:8px;border:none;background:#262626;color:white;outline:none}
+  .flex-row{display:flex;gap:10px}
+  .small{width:150px}
+  .list{margin-top:14px;display:flex;flex-direction:column;gap:12px}
+  .item{background:#161616;padding:12px;border-radius:10px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+  .left{flex:1}
+  .who{font-weight:800}
+  .meta{font-size:13px;opacity:0.75;margin-top:6px}
+  .text{margin-top:8px;white-space:pre-wrap;color:#eee}
+  .actions{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+  .danger{background:rgba(255,60,60,0.12);border:1px solid rgba(255,60,60,0.18)}
+  .hidden{display:none}
+  .note{font-size:13px;color:rgba(255,255,255,0.7);margin-top:8px}
+  @media(max-width:720px){.flex-row{flex-direction:column}.small{width:100%}.actions{flex-direction:row}}
 </style>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-
 </head>
 <body>
 
-<div class="header">후원 후기</div>
-
-<div class="container">
-
-    <div class="input-card">
-        <h2>댓글 작성</h2>
-        <input id="name" placeholder="이름을 입력하세요">
-        <textarea id="comment" rows="4" placeholder="후기 내용을 입력하세요"></textarea>
-        <button onclick="sendComment()">등록하기</button>
+<div class="wrap">
+  <header>
+    <h1>후원 후기</h1>
+    <div class="top-actions">
+      <a class="btn" href="index.html">랭킹으로 이동</a>
+      <button id="adminBtn" class="btn">관리자 모드</button>
     </div>
+  </header>
 
-    <h2>전체 후기</h2>
-    <div id="commentList"></div>
+  <div class="input-card" id="inputCard">
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <input id="inputName" placeholder="이름 (예: 홍길동)" />
+      <input id="inputAmount" placeholder="후원금 (숫자만)" class="small" />
+    </div>
+    <textarea id="inputText" placeholder="후기 내용을 입력하세요"></textarea>
+    <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+      <select id="sortSelect" class="small">
+        <option value="new">최신순</option>
+        <option value="old">오래된순</option>
+        <option value="report">신고 많은순</option>
+      </select>
+      <button id="submitBtn" class="btn">등록하기</button>
+      <button id="exportBtn" class="btn">백업(EXPORT)</button>
+      <input id="importFile" type="file" accept=".json" style="display:none" />
+      <button id="importBtn" class="btn">가져오기(IMPORT)</button>
+    </div>
+    <div class="note">※ 욕설은 자동 필터링 됩니다. 신고 5회 이상 시 자동으로 숨겨집니다.</div>
+  </div>
 
+  <div id="list" class="list"></div>
 </div>
 
+<!-- Firebase compat SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
 <script>
-/* Firebase 설정 */
+// === 설정 (너의 Firebase 설정 사용) ===
 const firebaseConfig = {
   apiKey: "AIzaSyCCZmgG_vItSO_K2T682nZiPmvCxPtSYfo",
   authDomain: "donate-af842.firebaseapp.com",
@@ -125,52 +80,205 @@ const firebaseConfig = {
   measurementId: "G-DZT7KS672R",
   databaseURL: "https://donate-af842-default-rtdb.firebaseio.com/"
 };
-
-// Firebase 초기화
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-/* 댓글 업로드 */
-function sendComment() {
-    const name = document.getElementById("name").value.trim();
-    const text = document.getElementById("comment").value.trim();
+// 관리자 코드 (원하면 바꿔)
+const ADMIN_CODE = "eun000eun";
+let isAdmin = false;
 
-    if (!name || !text) {
-        alert("이름과 내용을 모두 입력하세요!");
-        return;
-    }
-
-    db.ref("comments").push({
-        name: name,
-        text: text,
-        time: new Date().toLocaleString()
-    });
-
-    document.getElementById("name").value = "";
-    document.getElementById("comment").value = "";
+// 욕설 리스트 (필요하면 추가)
+const badWords = ["씨발","병신","좆","개새","썅","미친","ㅅㅂ","ㅈ같","ㅄ","ㅂㅅ"];
+function filterBadWords(text){
+  if(!text) return text;
+  badWords.forEach(w=>{
+    const re = new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), "gi");
+    text = text.replace(re, "***");
+  });
+  return text;
 }
 
-/* 댓글 실시간 불러오기 */
-db.ref("comments").on("value", snapshot => {
-    const list = document.getElementById("commentList");
+// 유효한 숫자만
+function parseAmount(v){
+  const n = parseInt(String(v).replace(/[^0-9\-]/g,''),10);
+  return isNaN(n)?0:n;
+}
+
+// escape (XSS 방지)
+function esc(s){
+  if(s===undefined||s===null) return "";
+  return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+}
+
+// 참조
+const commentsRef = db.ref("comments");
+
+// 이벤트 바인딩
+document.getElementById("submitBtn").addEventListener("click", onSubmit);
+document.getElementById("adminBtn").addEventListener("click", onAdminToggle);
+document.getElementById("exportBtn").addEventListener("click", onExport);
+document.getElementById("importBtn").addEventListener("click", ()=>document.getElementById("importFile").click());
+document.getElementById("importFile").addEventListener("change", onImport);
+
+// 등록
+function onSubmit(){
+  const name = document.getElementById("inputName").value.trim() || "익명";
+  const amount = parseAmount(document.getElementById("inputAmount").value);
+  let text = document.getElementById("inputText").value.trim();
+  if(!text){ alert("내용을 입력하세요."); return; }
+  text = filterBadWords(text);
+
+  const now = Date.now();
+  const payload = {
+    name: name,
+    amount: amount,
+    text: text,
+    time: now,
+    reports: 0
+  };
+  commentsRef.push(payload);
+  document.getElementById("inputText").value = "";
+  document.getElementById("inputName").value = "";
+  document.getElementById("inputAmount").value = "";
+}
+
+// 관리자 모드 토글 (비밀번호 입력)
+function onAdminToggle(){
+  if(isAdmin){
+    isAdmin = false;
+    alert("관리자 모드 해제됨");
+    render(); // 다시 렌더
+    return;
+  }
+  const code = prompt("관리자 코드를 입력하세요:");
+  if(code === ADMIN_CODE){
+    isAdmin = true;
+    alert("관리자 모드 활성화됨");
+    render();
+  } else {
+    alert("관리자 코드가 틀립니다.");
+  }
+}
+
+// 댓글 삭제 (관리자용)
+function deleteComment(key){
+  if(!isAdmin){ alert("관리자 권한이 필요합니다."); return; }
+  if(!confirm("이 댓글을 삭제하시겠습니까?")) return;
+  commentsRef.child(key).remove();
+}
+
+// 신고 (모든 사용자 가능)
+function reportComment(key){
+  const rRef = commentsRef.child(key).child("reports");
+  rRef.transaction(current=>{
+    return (current||0) + 1;
+  }, (err, committed, snapshot)=>{
+    if(err) { console.error(err); return; }
+    const reports = snapshot.val();
+    if(reports >= 5){
+      // 자동 숨김: set hidden flag
+      commentsRef.child(key).update({ hidden: true });
+    }
+  });
+}
+
+// 백업(export)
+function onExport(){
+  commentsRef.once("value").then(snap=>{
+    const obj = snap.val() || {};
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(obj,null,2));
+    const a = document.createElement("a");
+    a.href = dataStr;
+    a.download = "comments-backup.json";
+    a.click();
+  });
+}
+
+// 가져오기(import) - 덮어쓰기 아님: 항목 푸시
+function onImport(e){
+  const f = e.target.files[0];
+  if(!f) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    try{
+      const obj = JSON.parse(ev.target.result);
+      // obj expected as { key: {..}, ... } or array
+      if(Array.isArray(obj)){
+        obj.forEach(item=>commentsRef.push(item));
+      } else {
+        Object.values(obj).forEach(item=>commentsRef.push(item));
+      }
+      alert("가져오기 완료");
+    } catch(err){
+      alert("파일 형식 오류");
+      console.error(err);
+    }
+  };
+  reader.readAsText(f);
+}
+
+// 렌더링: 정렬 옵션 적용
+function render(){
+  const mode = document.getElementById("sortSelect").value;
+  commentsRef.once("value").then(snap=>{
+    const raw = snap.val() || {};
+    const arr = Object.entries(raw).map(([k,v]) => ({ key:k, ...v }));
+    // 기본 숨김 처리
+    const visible = arr.filter(o => !o.hidden);
+    // 정렬
+    if(mode === "new") visible.sort((a,b)=>b.time - a.time);
+    else if(mode === "old") visible.sort((a,b)=>a.time - b.time);
+    else if(mode === "report") visible.sort((a,b)=>(b.reports||0) - (a.reports||0));
+
+    // 출력
+    const list = document.getElementById("list");
     list.innerHTML = "";
+    visible.forEach(item=>{
+      const div = document.createElement("div");
+      div.className = "item";
+      const left = document.createElement("div");
+      left.className = "left";
+      left.innerHTML = `<div class="who">${esc(item.name)} <span style="font-weight:600;color:rgba(255,255,255,0.75)">· ${item.amount?item.amount.toLocaleString()+'원':''}</span></div>
+                        <div class="meta">${new Date(item.time).toLocaleString()}</div>
+                        <div class="text">${esc(filterBadWords(item.text))}</div>
+                        <div class="meta">신고: ${item.reports||0}</div>`;
+      const actions = document.createElement("div");
+      actions.className = "actions";
+      // 신고 버튼
+      const rpt = document.createElement("button");
+      rpt.className = "btn";
+      rpt.textContent = "신고";
+      rpt.onclick = ()=>{ if(confirm("이 댓글을 신고하시겠습니까?")) reportComment(item.key) };
+      actions.appendChild(rpt);
+      // 관리자 삭제 버튼 (보이면 삭제 가능)
+      if(isAdmin){
+        const del = document.createElement("button");
+        del.className = "btn danger";
+        del.textContent = "삭제";
+        del.onclick = ()=> deleteComment(item.key);
+        actions.appendChild(del);
+      }
+      // show hidden marker if hidden exists (for admins)
+      if(item.hidden && isAdmin){
+        const span = document.createElement("div");
+        span.className = "meta";
+        span.textContent = "자동 숨김(신고 다수) 상태";
+        actions.appendChild(span);
+      }
 
-    snapshot.forEach(child => {
-        const c = child.val();
-
-        const div = document.createElement("div");
-        div.className = "comment";
-
-        div.innerHTML = `
-            <div class="comment-name">${c.name}</div>
-            <div class="comment-text">${c.text}</div>
-            <div class="time">${c.time}</div>
-        `;
-
-        list.prepend(div);
+      div.appendChild(left);
+      div.appendChild(actions);
+      list.appendChild(div);
     });
-});
-</script>
+  });
+}
 
+// 실시간 변화 감지: 재렌더
+commentsRef.on("value", render);
+document.getElementById("sortSelect").addEventListener("change", render);
+
+// 초기 렌더
+render();
+</script>
 </body>
 </html>
